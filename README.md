@@ -52,7 +52,7 @@ Starte deinen Flask-Server mit folgendem Befehl:
 
       
 
-    python app.py
+    python3 app.py
 
     
 

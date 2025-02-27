@@ -73,7 +73,7 @@ Benutzer im selben lokalen Netzwerk können nun auf deinen Server zugreifen, ind
 
 Wichtige Hinweise:
 
-    Firewall-Einstellungen: Überprüfe, ob deine Firewall eingehenden Verkehr auf Port 5000 zulässt. Möglicherweise musst du eine Regel erstellen, um den Verkehr zu ermöglichen.
+Firewall-Einstellungen: Überprüfe, ob deine Firewall eingehenden Verkehr auf Port 5000 zulässt. Möglicherweise musst du eine Regel erstellen, um den Verkehr zu ermöglichen.
 
-    Netzwerksicherheit: Achte darauf, dass du diese Konfiguration nur in einem sicheren Netzwerk verwendest, da 0.0.0.0 den Server für alle Geräte im lokalen Netzwerk zugänglich macht.
+Netzwerksicherheit: Achte darauf, dass du diese Konfiguration nur in einem sicheren Netzwerk verwendest, da 0.0.0.0 den Server für alle Geräte im lokalen Netzwerk zugänglich macht.
 

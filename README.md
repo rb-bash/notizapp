@@ -1,4 +1,4 @@
-###Voraussetzungen!!!
+###Voraussetzungen!!! (getestet auf Debian)
 
 
 

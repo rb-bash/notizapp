@@ -7,6 +7,10 @@ Bevor du beginnst, stelle sicher, dass du Folgendes installiert hast:
 
 Normalerweise wird pip mit Python installiert. Überprüfe dies, indem du den Befehl `pip --version` in der Konsole eingibst.
 
+Wenn nicht: 
+
+      apt install pip 
+
 Schritt 1: Installiere die benötigten Pakete
 
 Installiere Flask und Flask-SocketIO, indem du diesen Befehl in der Konsole ausführst:

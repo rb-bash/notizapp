@@ -21,10 +21,6 @@ Schritt 2: Bestimme deine lokale IP-Adresse
 
 Um den Server für andere Benutzer im lokalen Netzwerk zugänglich zu machen, bestimme zuerst die lokale IP-Adresse deines Computers:
 
-Windows:
-Öffne die Eingabeaufforderung (Cmd).
-Gib ipconfig ein und drücke Enter.
-Suche die IPv4-Adresse deines Netzwerkadapters.
 
 macOS und Linux:
 Öffne ein Terminal.

@@ -5,7 +5,7 @@
 
 Bevor du beginnst, stelle sicher, dass du Folgendes installiert hast:
 
-pip: Normalerweise wird pip mit Python installiert. Überprüfe dies, indem du den Befehl `pip --version` in der Konsole eingibst.
+Normalerweise wird pip mit Python installiert. Überprüfe dies, indem du den Befehl `pip --version` in der Konsole eingibst.
 
 Schritt 1: Installiere die benötigten Pakete
 

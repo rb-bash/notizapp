@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notiz-App</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .note-container {
+            border-radius: 5px;
+            margin: 10px 0;
+            padding: 10px;
+            padding-right: 150px; /* Platz für die Buttons */
+            position: relative;
+            background-color: #f9f9f9;
+            word-wrap: break-word;
+            min-height: 50px;
+            padding-bottom: 30px;
+            transition: background-color 0.5s ease;
+        }
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            border: 2px solid red;
+            border-radius: 5px;
+            background-color: red;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .delete-button:hover {
+            opacity: 0.8;
+        }
+        .completed-button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 50px; /* Platziere den Button neben dem Löschen-Button */
+        }
+        .buttons {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .note-date {
+            font-size: 12px;
+            color: #888;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+        input {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="text"], textarea {
+            box-sizing: border-box;
+        }
+        .new-note-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .note-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Aufgaben und Notizen</h1>
+
+<ul id="notes">
+    {% for note in notes %}
+        <li class="note-container" style="border: 2px solid {{ note.color }}; background-color: {% if note.completed %}rgba{{ note.color[1:] }}, 0.2{% else %}#f9f9f9{% endif %};">
+            <strong>{{ note.customer }}</strong>: {{ note.text }}
+            <button class="completed-button" onclick="toggleNote({{ loop.index0 }})">
+                {% if note.completed %}Erledigt{% else %}Markiere als Erledigt{% endif %}
+            </button>
+            <button class="delete-button" onclick="deleteNote({{ loop.index0 }})">✖</button>
+            <div class="buttons">
+                <button class="add-subnote-button" onclick="showSubnoteInput({{ loop.index0 }})">Unternotiz hinzufügen</button>
+            </div>
+            <div id="subnote-input-{{ loop.index0 }}" style="display: none;">
+                <textarea id="subnoteInput-{{ loop.index0 }}" rows="3" placeholder="Unternotiz hinzufügen"></textarea>
+                <input type="text" id="subnoteEmployee-{{ loop.index0 }}" placeholder="Mitarbeiter">
+                <button onclick="addSubnote({{ loop.index0 }})">Hinzufügen</button>
+            </div>
+            <ul>
+                {% if note.subnotes %}
+                    {% for subnote in note.subnotes %}
+                        <li>- {{ subnote.text }} ({{ subnote.employee }})</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+            <div class="note-date">{{ note.date }}</div>
+        </li>
+    {% endfor %}
+</ul>
+
+<div class="new-note-title">Neue Notiz</div>
+<input type="text" id="customerInput" placeholder="Kunde">
+<textarea id="noteInput" rows="4" placeholder="Neue Aufgabe"></textarea>
+<button class="add-subnote-button" onclick="addNote()">Hinzufügen</button>
+
+<script>
+    const socket = io();
+    let lastColor = '';
+
+    function getRandomColor() {
+        const colors = ['#4CAF50', '#FF5733', '#33C3FF', '#FFC300', '#FF33C4', '#8E44AD'];
+        let newColor;
+
+        do {
+            newColor = colors[Math.floor(Math.random() * colors.length)];
+        } while (newColor === lastColor);
+
+        lastColor = newColor;
+        return newColor;
+    }
+
+    function rgbaColor(color, alpha) {
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function addNote() {
+        const noteText = $('#noteInput').val();
+        const customer = $('#customerInput').val();
+        const now = new Date();
+        const date = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+        const color = getRandomColor();
+
+        if (noteText && customer) {
+            socket.emit('add_note', { text: noteText, customer: customer, date: date, color: color, completed: false });
+            $('#noteInput').val('');
+            $('#customerInput').val('');
+        }
+    }
+
+    socket.on('update_notes', function(notes) {
+        $('#notes').empty();
+        notes.forEach(function(note, index) {
+            const backgroundColor = note.completed ? rgbaColor(note.color, 0.2) : '#f9f9f9';
+            $('#notes').append(
+                `<li class="note-container" style="border: 2px solid ${note.color}; background-color: ${backgroundColor};">
+                    <strong>${note.customer}</strong>: ${note.text}
+                    <button class="completed-button" onclick="toggleNote(${index})">
+                        ${note.completed ? 'Erledigt' : 'Markiere als Erledigt'}
+                    </button>
+                    <button class="delete-button" onclick="deleteNote(${index})">✖</button>
+                    <div class="buttons">
+                        <button class="add-subnote-button" onclick="showSubnoteInput(${index})">Unternotiz hinzufügen</button>
+                    </div>
+                    <div id="subnote-input-${index}" style="display: none;">
+                        <textarea id="subnoteInput-${index}" rows="3" placeholder="Unternotiz hinzufügen"></textarea>
+                        <input type="text" id="subnoteEmployee-${index}" placeholder="Mitarbeiter">
+                        <button onclick="addSubnote(${index})">Hinzufügen</button>
+                    </div>
+                    <ul>
+                        ${note.subnotes ? note.subnotes.map(subnote => `<li>- ${subnote.text} (${subnote.employee})</li>`).join('') : ''}
+                    </ul>
+                    <div class="note-date">${note.date}</div>
+                </li>`
+            );
+        });
+    });
+
+    function toggleNote(index) {
+        socket.emit('toggle_note', { index: index });
+    }
+
+    function deleteNote(index) {
+        socket.emit('delete_note', { index: index });
+    }
+
+    function showSubnoteInput(index) {
+        $(`#subnote-input-${index}`).toggle();
+    }
+
+    function addSubnote(index) {
+        const subnoteText = $(`#subnoteInput-${index}`).val();
+        const subnoteEmployee = $(`#subnoteEmployee-${index}`).val();
+        if (subnoteText && subnoteEmployee) {
+            socket.emit('add_subnote', { index: index, subnote: { text: subnoteText, employee: subnoteEmployee } });
+            $(`#subnoteInput-${index}`).val('');
+            $(`#subnoteEmployee-${index}`).val('');
+            $(`#subnote-input-${index}`).hide();
+        }
+    }
+</script>
+
+</body>

@@ -1,0 +1,29 @@
+
+### Vorraussetzungen
+
+Stelle sicher, dass du Folgendes installiert hast:
+
+1. **Python**: Du kannst die neueste Version von Python [hier herunterladen](https://www.python.org/downloads/).
+2. **pip**: Dies sollte in der Regel mit Python installiert sein; du kannst dies überprüfen, indem du `pip --version` in der Konsole eingibst.
+
+
+
+### Schritt 2: Installiere die benötigten Pakete
+
+3. **Installiere Flask und Flask-SocketIO**: Führe den folgenden Befehl aus, um die nötigen Bibliotheken zu installieren:
+
+   ```bash
+   pip install Flask Flask-SocketIO
+   ```
+
+
+4. **Server starten**: Führe den folgenden Befehl aus, um den Flask-Server zu starten:
+
+   ```bash
+   python app.py
+   ```
+
+5. **Zugriff auf die Anwendung**: Öffne in deinem Webbrowser die URL `http://127.0.0.1:5000`. 
+
+
+
